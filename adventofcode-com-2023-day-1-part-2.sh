@@ -1,0 +1,1 @@
+s=0;while read j;do d="${j//one/o1e}";d="${d//two/t2o}";d="${d//three/t3e}";d="${d//four/f4r}";d="${d//five/f5e}";d="${d//six/s6x}";d="${d//seven/s7n}";d="${d//eight/e8t}";d="${d//nine/n9e}";d="${d//[a-z]/}";f=${d:0:1};l=${d:0-1};let 's+=10*f+l';done</dev/stdin;echo $s
