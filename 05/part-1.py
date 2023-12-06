@@ -46,17 +46,19 @@ class Almanac:
 		output = seed_number
 		for map_name in self.map_order:
 			#print(f'{output} {map_name} ', end='')
-			if (output < self.maps[map_name][0]['source']
-					or output > self.maps[map_name][-1]['source_max']):
-				# Ranges are sorted. Skip if we're less than min or greater than max.
-				next
-			for curr_map in self.maps[map_name]:
+			a = 0
+			z = len(self.maps[map_name]) - 1
+			while a <= z:
+				guess = int((z - a) / 2) + a
+				#print(f'{a} {z} {guess}')
+				curr_map = self.maps[map_name][guess]
 				if output >= curr_map['source'] and output < (curr_map['source'] + curr_map['length']):
 					output = curr_map['destination'] + (output - curr_map['source'])
 					break
 				elif output < curr_map['source']:
-					# It's too small, and they're sorted.
-					break
+					z = guess - 1
+				else:
+					a = guess + 1
 		#print(output)
 		return(output)
 
