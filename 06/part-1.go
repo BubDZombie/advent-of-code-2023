@@ -19,6 +19,16 @@ func winners(time int, record_distance int, step int) []int {
 	return winners
 }
 
+func stringFieldsToIntSlice(field_string string) []int {
+	var ints []int
+	int_strings := strings.Fields(field_string)
+	for _, int_string := range int_strings {
+		converted, _ := strconv.Atoi(int_string)
+		ints = append(ints, converted)
+	}
+	return ints
+}
+
 func main() {
 	var times []int
 	var distances []int
@@ -26,23 +36,14 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
+		var slice_to_load *[]int
 		if strings.Contains(line, "Time") {
-			time_chunks := strings.Split(line, ":")
-			time_strings := strings.Fields(time_chunks[1])
-			times = make([]int, len(time_strings))
-			for i, time := range time_strings {
-				time_int, _ := strconv.Atoi(time)
-				times[i] = time_int
-			}
+			slice_to_load = &times
 		} else if strings.Contains(line, "Distance") {
-			distance_chunks := strings.Split(line, ":")
-			distance_strings := strings.Fields(distance_chunks[1])
-			distances = make([]int, len(distance_strings))
-			for i, distance := range distance_strings {
-				distance_int, _ := strconv.Atoi(distance)
-				distances[i] = distance_int
-			}
+			slice_to_load = &distances
 		}
+		chunks := strings.Split(line, ":")
+		*slice_to_load = stringFieldsToIntSlice(chunks[1])
 	}
 	fmt.Println(times)
 	fmt.Println(distances)
