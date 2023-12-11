@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"sync"
 )
 
 type Node struct {
@@ -13,22 +12,28 @@ type Node struct {
 	Right string
 }
 
-func advance(desertMap *map[string]Node, locations *[]string, locationIndex int, direction string, waitGroup *sync.WaitGroup) {
-	defer (*waitGroup).Done()
-	if direction == "L" {
-		(*locations)[locationIndex] = (*desertMap)[(*locations)[locationIndex]].Left
-	} else {
-		(*locations)[locationIndex] = (*desertMap)[(*locations)[locationIndex]].Right
+// greatest common divisor via Euclidean algorithm
+func greatestCommonDivisor(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
 	}
+	return a
 }
 
-func finished(locations *[]string) bool {
-	for _, location := range *locations {
-		if location[2] != 90 {
-			return false
-		}
+// find Least Common Multiple via greatestCommonDivisor
+func leastCommonMultiple(integers []int) int {
+	a := integers[0]
+	b := integers[1]
+	integers = integers[2:]
+	result := a * b / greatestCommonDivisor(a, b)
+
+	for i := 0; i < len(integers); i++ {
+		result = leastCommonMultiple([]int{result, integers[i]})
 	}
-	return true
+
+	return result
 }
 
 func main() {
@@ -61,21 +66,26 @@ func main() {
 	}
 	fmt.Println(locations)
 
-	steps := 0
-	directionsIndex := 0
-	var waitGroup sync.WaitGroup
-	for !finished(&locations) {
-		if directionsIndex > (len(directions) - 1) {
-			directionsIndex = 0
+	// Routes are periodic, steps to first Z is the period.
+	var periods []int
+	for _, location := range locations {
+		steps := 0
+		directionsIndex := 0
+		fmt.Printf("%s %i\n", location, steps)
+		for location[2] != 90 {
+			if directionsIndex > (len(directions) - 1) {
+				directionsIndex = 0
+			}
+			direction := directions[directionsIndex]
+			if direction == "L" {
+				location = desertMap[location].Left
+			} else {
+				location = desertMap[location].Right
+			}
+			steps++
+			directionsIndex++
 		}
-		direction := directions[directionsIndex]
-		waitGroup.Add(len(locations))
-		for i := 0; i < len(locations); i++ {
-			go advance(&desertMap, &locations, i, direction, &waitGroup)
-		}
-		waitGroup.Wait()
-		steps++
-		directionsIndex++
+		periods = append(periods, steps)
 	}
-	fmt.Printf("It took %i steps to get from AAA to ZZZ.\n", steps)
+	fmt.Println(leastCommonMultiple(periods))
 }
