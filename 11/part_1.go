@@ -29,22 +29,8 @@ func addRow(starMap [][]string, rowIndex int) [][]string {
 	return returnMap
 }
 
-func expand(starMap [][]string) [][]string {
-	rowIndex := 0
-	for rowIndex < len(starMap) {
-		noStars := true
-		for _, char := range starMap[rowIndex] {
-			if char == "#" {
-				noStars = false
-			}
-		}
-		if noStars {
-			starMap = addRow(starMap, rowIndex)
-			rowIndex++
-		}
-		rowIndex++
-	}
-
+func getEmptyColumns(starMap [][]string) []int {
+	var columns []int
 	colIndex := 0
 	for colIndex < len(starMap[0]) {
 		noStars := true
@@ -54,14 +40,27 @@ func expand(starMap [][]string) [][]string {
 			}
 		}
 		if noStars {
-			fmt.Println("Add column ", colIndex)
-			starMap = addColumn(starMap, colIndex)
-			colIndex++
+			columns = append(columns, colIndex)
 		}
 		colIndex++
 	}
+	return columns
+}
 
-	return starMap
+func getEmptyRows(starMap [][]string) []int {
+	var rows []int
+	for rowIndex, row := range starMap {
+		noStars := true
+		for _, char := range row {
+			if char == "#" {
+				noStars = false
+			}
+		}
+		if noStars {
+			rows = append(rows, rowIndex)
+		}
+	}
+	return rows
 }
 
 func getStars(starMap [][]string) [][]int {
@@ -102,7 +101,21 @@ func prettyPrintMatrix(matrix [][]string) {
 	fmt.Println("\n")
 }
 
-func sumDistances(stars [][]int) int {
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max (a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func sumDistances(stars [][]int, emptyRows []int, emptyColumns []int, speedOfLight int) int {
 	sum := 0
 	for _, a := range stars {
 		for _, b := range stars {
@@ -110,9 +123,19 @@ func sumDistances(stars [][]int) int {
 			if height < 0 {
 				height = height * -1
 			}
+			for _, row := range emptyRows {
+				if row > min(a[0], b[0]) && row < max(a[0], b[0]) {
+					height += speedOfLight - 1
+				}
+			}
 			width := a[1] - b[1]
 			if width < 0 {
 				width = width * -1
+			}
+			for _, column := range emptyColumns {
+				if column > min(a[1], b[1]) && column < max(a[1], b[1]) {
+					width += speedOfLight - 1
+				}
 			}
 			distance := height + width
 			sum += distance
@@ -124,9 +147,13 @@ func sumDistances(stars [][]int) int {
 func main() {
 	starMap := parseInput()
 	prettyPrintMatrix(starMap)
-	starMap = expand(starMap)
-	prettyPrintMatrix(starMap)
+	emptyRows := getEmptyRows(starMap)
+	emptyColumns := getEmptyColumns(starMap)
+	fmt.Println("Empty rows: ", emptyRows, " empty columns: ", emptyColumns)
 	stars := getStars(starMap)
-	fmt.Println(stars)
-	fmt.Println("Total distance is ", sumDistances(stars) / 2)
+	fmt.Println("Stars: ", stars)
+	fmt.Println("Total distance for part 1 is ", sumDistances(stars, emptyRows, emptyColumns, 2) / 2)
+	fmt.Println("Total distance with light speed 10 is ", sumDistances(stars, emptyRows, emptyColumns, 10) / 2)
+	fmt.Println("Total distance with light speed 100 is ", sumDistances(stars, emptyRows, emptyColumns, 100) / 2)
+	fmt.Println("Total distance for part 2 is ", sumDistances(stars, emptyRows, emptyColumns, 1000000) / 2)
 }
