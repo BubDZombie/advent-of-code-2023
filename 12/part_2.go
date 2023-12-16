@@ -72,10 +72,12 @@ func getInputs() []Record {
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
 		var record Record
-		record.RecordString = fields[0]
-		for _, intString := range strings.Split(fields[1], ",") {
-			converted, _ := strconv.Atoi(intString)
-			record.Order = append(record.Order, converted)
+		record.RecordString = strings.Repeat(fields[0], 5)
+		for i := 0; i < 5; i++ {
+			for _, intString := range strings.Split(fields[1], ",") {
+				converted, _ := strconv.Atoi(intString)
+				record.Order = append(record.Order, converted)
+			}
 		}
 		records = append(records, record)
 	}
@@ -115,12 +117,12 @@ func permutations(record string, order []int) []string {
 func main() {
 	sum := 0
 	for _, record := range getInputs() {
+		fmt.Println(record)
 		perms := permutations(record.RecordString, record.Order)
-		// fmt.Println(record)
 		// for _, perm := range perms {
 		// 	fmt.Println(perm)
 		// }
-		// fmt.Println(len(perms))
+		fmt.Println(len(perms))
 		sum += len(perms)
 	}
 	fmt.Println(sum)
