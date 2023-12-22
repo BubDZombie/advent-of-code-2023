@@ -72,13 +72,15 @@ func getInputs() []Record {
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
 		var record Record
-		record.RecordString = strings.Repeat(fields[0], 5)
+		var unfolded []string
 		for i := 0; i < 5; i++ {
+			unfolded = append(unfolded, fields[0])
 			for _, intString := range strings.Split(fields[1], ",") {
 				converted, _ := strconv.Atoi(intString)
 				record.Order = append(record.Order, converted)
 			}
 		}
+		record.RecordString = strings.Join(unfolded, "?")
 		records = append(records, record)
 	}
 	return records
