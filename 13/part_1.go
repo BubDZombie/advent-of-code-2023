@@ -39,14 +39,50 @@ func reflectHorizontal(record []string) int {
 		}
 		if mismatched {
 			continue
-		} else if i == 0 || j == len(record) - 1 {
+		} else if i == -1 || j == len(record) {
 			return 100 * bottom
 		}
 	}
 	return 0
 }
 
+func reflectVertical(record []string) int {
+	for left := 0; left < len(record[0]) - 1; left++ {
+		right := left + 1
+		mismatched := false
+		i := left
+		j := right
+		for !mismatched && i >= 0 && j < len(record[0]) {
+			for _, line := range record {
+				if line[i] != line[j] {
+					mismatched = true
+					break
+				}
+			}
+			if mismatched {
+				continue
+			} else if i == 0 || j == len(record[0]) - 1 {
+				return right
+			}
+			i--
+			j++
+		}
+	}
+	return 0
+}
+
 func main() {
-	records := getInputs()
-	fmt.Println(records)
+	sum := 0
+	for _, record := range getInputs() {
+		for _, line := range record {
+			fmt.Println(line)
+		}
+		response := reflectHorizontal(record)
+		fmt.Println("reflectHorizontal", response)
+		sum += response
+		response = reflectVertical(record)
+		fmt.Println("reflectVertical", response)
+		sum += response
+	}
+	fmt.Println(sum)
 }
